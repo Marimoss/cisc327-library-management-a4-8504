@@ -33,15 +33,15 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: python -m playwright install --with-deps
 
-      - name: Install Windows/MacOS Playwright browsers
-        if: matrix.os != 'ubuntu-latest'
+      - name: Install Windows Playwright browsers
+        if: matrix.os == 'windows-latest'
         run: python -m playwright install
 
       - name: Add repo to PYTHONPATH
         run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
 
-      - name: Start Ubuntu/MacOS Flask app
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+      - name: Start Ubuntu Flask app
+        if: matrix.os == 'ubuntu-latest'
         env:
           PYTHONPATH: ${{ github.workspace }}
         shell: bash
@@ -56,10 +56,16 @@ jobs:
           Start-Process python app.py
           Start-Sleep -Seconds 5
 
+      - name: Run E2E tests
+        if: matrix.os != 'macos-latest'
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -q tests/test_e2e.py
+
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest -q 
+        run: pytest -q --ignore=tests/test_e2e.py
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
