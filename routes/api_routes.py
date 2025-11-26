@@ -4,6 +4,8 @@ API Routes - JSON API endpoints
 
 from flask import Blueprint, jsonify, request
 from services.library_service import calculate_late_fee_for_book, search_books_in_catalog
+import os  # Clear old Docker layers if needed. 
+from database import DATABASE, init_database, add_sample_data
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -37,3 +39,17 @@ def search_books_api():
         'results': books,
         'count': len(books)
     })
+
+@api_bp.route('/test/reset-db')
+def test_reset_db():
+    """
+    Reset the internal SQLite database.
+    Used ONLY for E2E tests (locally and inside Docker).
+    """
+   # Remove DB file if exists
+    if os.path.exists(DATABASE):
+        os.remove(DATABASE)
+    init_database()
+    add_sample_data()
+
+    return jsonify({"status": "Database reset successful"}), 200
