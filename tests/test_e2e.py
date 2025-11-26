@@ -43,7 +43,6 @@ def test_add_then_borrow_book(page: Page):
     
     # Verify that book appears in catalog. 
     expect(page.get_by_text('Book "Detective Chinatown" has been successfully added to the catalog.')).to_be_visible()
-    assert "Detective Chinatown" in page.content()  # MIGHT be wrong. 
 
     row = page.get_by_role("row", name="4 Detective Chinatown")  # Formatted as “bookID Title". 
     expect(row).to_contain_text("Detective Chinatown")
